@@ -11,28 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CI: "true"
-      EXPO_NO_TELEMETRY: "1"   # keep logs clean / non-interactive
+      EXPO_NO_TELEMETRY: "1"
 
     steps:
-      # 1) Get your code
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2) Stable toolchain (Node 18 works well with Expo/React Native)
       - name: Setup Node 18
         uses: actions/setup-node@v4
         with:
           node-version: 18
-          cache: npm  # uses package-lock.json for cache key when present
+          cache: npm
 
-      # 3) Show tool versions in logs (helps debug quickly)
       - name: Print versions
         run: |
           echo "Node: $(node -v)"
           echo "npm:  $(npm -v)"
 
-      # 4) Install deps deterministically (from package-lock.json)
-      #    If you ever remove the lockfile, this will fall back gracefully.
       - name: Install dependencies
         run: |
           if [ -f package-lock.json ]; then
@@ -41,12 +36,9 @@ jobs:
             npm install --no-audit --no-fund --legacy-peer-deps
           fi
 
-      # 5) Expo CLI smoke check (non-interactive)
-      #    This verifies that the Expo toolchain is reachable in CI.
       - name: Expo CLI check
         run: npx --yes expo --version
 
-      # 6) TypeScript + ESLint
       - name: Type check
         run: |
           if npm run | grep -q "typecheck"; then
@@ -63,13 +55,17 @@ jobs:
             npx eslint . --ext .ts,.tsx
           fi
 
-      # 7) (Optional) Prettier format check — enable if you added Prettier
       - name: Prettier check
-        if: ${{ always() }}
         run: |
           if npm run | grep -q "format:check"; then
-            npm run format:check
+            if [ -f node_modules/.bin/prettier ]; then
+              echo "Using local Prettier (script)"
+              npm run format:check
+            else
+              echo "Local Prettier not found → using npx fallback"
+              npx --yes prettier --check .
+            fi
           else
-            echo "No prettier check script; skipping."
+            echo "No format:check script; skipping."
           fi
 
