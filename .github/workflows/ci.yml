@@ -2,51 +2,38 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  verify:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      # 1. Checkout code
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
+      # 2. Use Node 18 + npm 9
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'                         # caches based on lockfile if present
+          node-version: 18
+          cache: 'npm'
 
-      - name: Enable Corepack (for Yarn/PNPM if present)
-        run: corepack enable
+      # 3. Verify npm version
+      - run: npm --version
 
-      - name: Install dependencies (robust)
-        env:
-          NPM_CONFIG_LEGACY_PEER_DEPS: "true" # relax RN peer deps
-          NPM_CONFIG_AUDIT: "false"
-          NPM_CONFIG_FUND: "false"
+      # 4. Install dependencies (from package-lock.json)
+      - name: Install dependencies
+        run: npm ci
+
+      # 5. Type check + lint
+      - name: Verify code quality
         run: |
-          echo "Node: $(node -v)"
-          echo "NPM:  $(npm -v)"
-          if [ -f yarn.lock ]; then
-            echo "Detected yarn.lock → Yarn install (no scripts)"
-            yarn --version
-            yarn install --frozen-lockfile --ignore-scripts
-          elif [ -f package-lock.json ]; then
-            echo "Detected package-lock.json → npm ci (no scripts)"
-            npm ci --no-audit --no-fund --ignore-scripts
-          else
-            echo "No lockfile → npm install (RN flags, no scripts)"
-            npm install --no-audit --no-fund --legacy-peer-deps --ignore-scripts
-          fi
+          npx tsc --noEmit
+          npx eslint . --ext .ts,.tsx
 
-      - name: Type check (prefer script; fallback to npx)
-        run: |
-          if npm run | grep -q "typecheck"; then
-            npm run typecheck
-          else
-            npx tsc -p tsconfig.json --noEmit
-          fi
-
+      # 6. Run tests (if you add Jest or Detox later)
+      - name: Run tests
+        run: echo "No tests yet"
