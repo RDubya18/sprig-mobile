@@ -17,27 +17,29 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'npm'                         # caches based on lockfile if present
 
       - name: Enable Corepack (for Yarn/PNPM if present)
         run: corepack enable
 
-      - name: Install dependencies (npm or yarn; lockfile or not)
+      - name: Install dependencies (robust)
         env:
-          NPM_CONFIG_LEGACY_PEER_DEPS: "true"
+          NPM_CONFIG_LEGACY_PEER_DEPS: "true" # relax RN peer deps
+          NPM_CONFIG_AUDIT: "false"
+          NPM_CONFIG_FUND: "false"
         run: |
           echo "Node: $(node -v)"
           echo "NPM:  $(npm -v)"
           if [ -f yarn.lock ]; then
-            echo "Detected yarn.lock → using Yarn"
+            echo "Detected yarn.lock → Yarn install (no scripts)"
             yarn --version
-            yarn install --frozen-lockfile
+            yarn install --frozen-lockfile --ignore-scripts
           elif [ -f package-lock.json ]; then
-            echo "Detected package-lock.json → using npm ci"
-            npm ci --no-audit --no-fund --prefer-offline
+            echo "Detected package-lock.json → npm ci (no scripts)"
+            npm ci --no-audit --no-fund --ignore-scripts
           else
-            echo "No lockfile → using npm install (RN-friendly flags)"
-            npm install --no-audit --no-fund --legacy-peer-deps
+            echo "No lockfile → npm install (RN flags, no scripts)"
+            npm install --no-audit --no-fund --legacy-peer-deps --ignore-scripts
           fi
 
       - name: Type check (prefer script; fallback to npx)
@@ -47,3 +49,4 @@ jobs:
           else
             npx tsc -p tsconfig.json --noEmit
           fi
+
