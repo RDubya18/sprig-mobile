@@ -1,12 +1,10 @@
 {
-  "extends": "@tsconfig/react-native/tsconfig.json",
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
     "moduleResolution": "bundler",
     "jsx": "react-native",
     "customConditions": ["react-native"],
-    "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
     "resolveJsonModule": true,

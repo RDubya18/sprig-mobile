@@ -12,17 +12,20 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { sprig, spacing, cardStyle } from "lib/theme";
-import { getRules, addRuleCompat as addRule, deleteRule, RuleRow } from "db/db";
-
+import {
+  getRules,
+  addRuleCompat as addRule,
+  deleteRule,
+  RuleRow,
+  applyRulesToUncategorized,
+} from "db/db";
 
 type Props = { onBack: () => void };
 
 export default function RulesScreen({ onBack }: Props) {
   const [loading, setLoading] = React.useState(false);
   const [rows, setRows] = React.useState<RuleRow[]>([]);
-  const [matchType, setMatchType] = React.useState<"merchant_exact" | "merchant_contains">(
-    "merchant_contains"
-  );
+  const [matchType, setMatchType] = React.useState<"contains" | "exact">("contains");
   const [pattern, setPattern] = React.useState("");
   const [category, setCategory] = React.useState("");
 
@@ -94,18 +97,20 @@ export default function RulesScreen({ onBack }: Props) {
 
           <View style={styles.row}>
             <Pressable
-              onPress={() => setMatchType("merchant_contains")}
-              style={[styles.segment, matchType === "merchant_contains" && styles.segmentActive]}
+              onPress={() => setMatchType("contains")}
+              style={[styles.segment, matchType === "contains" && styles.segmentActive]}
             >
-              <Text style={[styles.segmentTxt, matchType === "merchant_contains" && styles.segmentTxtActive]}>
+              <Text
+                style={[styles.segmentTxt, matchType === "contains" && styles.segmentTxtActive]}
+              >
                 contains
               </Text>
             </Pressable>
             <Pressable
-              onPress={() => setMatchType("merchant_exact")}
-              style={[styles.segment, matchType === "merchant_exact" && styles.segmentActive]}
+              onPress={() => setMatchType("exact")}
+              style={[styles.segment, matchType === "exact" && styles.segmentActive]}
             >
-              <Text style={[styles.segmentTxt, matchType === "merchant_exact" && styles.segmentTxtActive]}>
+              <Text style={[styles.segmentTxt, matchType === "exact" && styles.segmentTxtActive]}>
                 exact
               </Text>
             </Pressable>

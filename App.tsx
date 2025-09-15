@@ -24,8 +24,17 @@ import { MonthContext, startOfMonth, yyyyMm, formatMonthTitle } from "./lib/date
 import { colors } from "./lib/colors";
 
 type ViewKey =
-  | "welcome" | "home" | "budgets" | "tx" | "reports" | "settings"
-  | "rules" | "notifications" | "export" | "accounts" | "accountDetail";
+  | "welcome"
+  | "home"
+  | "budgets"
+  | "tx"
+  | "reports"
+  | "settings"
+  | "rules"
+  | "notifications"
+  | "export"
+  | "accounts"
+  | "accountDetail";
 
 export default function App() {
   const [view, setView] = React.useState<ViewKey>("home");
@@ -41,7 +50,9 @@ export default function App() {
 
   const monthKey = React.useMemo(() => yyyyMm(activeMonth), [activeMonth]);
   const monthTitle = React.useMemo(() => formatMonthTitle(activeMonth), [activeMonth]);
-  const monthPickerEl = <MonthPicker value={activeMonth} onChange={setActiveMonth} style={{ marginTop: 8 }} />;
+  const monthPickerEl = (
+    <MonthPicker value={activeMonth} onChange={setActiveMonth} style={{ marginTop: 8 }} />
+  );
 
   return (
     <MonthContext.Provider value={{ activeMonth, setActiveMonth, monthKey, monthTitle }}>
@@ -56,16 +67,18 @@ export default function App() {
           {view === "welcome" && <WelcomeScreen onDone={() => setView("home")} />}
 
           {view === "home" && (
-            <HomeScreen
-              monthPicker={monthPickerEl}
-              onOpenAccounts={() => setView("accounts")}
-            />
+            <HomeScreen monthPicker={monthPickerEl} onOpenAccounts={() => setView("accounts")} />
           )}
-          {view === "budgets" && <BudgetsScreen />}
+          {view === "budgets" && <BudgetsScreen onBack={() => setView("home")} />}
           {view === "tx" && <TransactionsScreen />}
-          {view === "reports" && <ReportsScreen monthPicker={monthPickerEl} monthTitle={monthTitle} />}
+          {view === "reports" && (
+            <ReportsScreen monthPicker={monthPickerEl} monthTitle={monthTitle} />
+          )}
           {view === "settings" && (
-            <SettingsScreen onOpenRules={() => setView("rules")} onOpenExport={() => setView("export")} />
+            <SettingsScreen
+              onOpenRules={() => setView("rules")}
+              onOpenExport={() => setView("export")}
+            />
           )}
           {view === "rules" && <RulesScreen onBack={() => setView("settings")} />}
           {view === "notifications" && <NotificationsScreen onBack={() => setView("home")} />}
@@ -74,7 +87,10 @@ export default function App() {
           {view === "accounts" && (
             <AccountsScreen
               onBack={() => setView("home")}
-              onOpenAccount={(id) => { setDetailAccountId(id); setView("accountDetail"); }}
+              onOpenAccount={(id) => {
+                setDetailAccountId(id);
+                setView("accountDetail");
+              }}
             />
           )}
           {view === "accountDetail" && detailAccountId != null && (
@@ -82,8 +98,17 @@ export default function App() {
           )}
         </View>
 
-        {!(view === "rules" || view === "export" || view === "welcome" || view === "accounts" || view === "accountDetail") && (
-          <TabBar active={view === "tx" ? "tx" : (view as any)} onTab={(key: ViewKey) => setView(key)} />
+        {!(
+          view === "rules" ||
+          view === "export" ||
+          view === "welcome" ||
+          view === "accounts" ||
+          view === "accountDetail"
+        ) && (
+          <TabBar
+            active={view === "tx" ? "tx" : (view as any)}
+            onTab={(key: ViewKey) => setView(key)}
+          />
         )}
       </SafeAreaView>
     </MonthContext.Provider>

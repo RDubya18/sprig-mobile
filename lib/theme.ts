@@ -10,7 +10,7 @@ export const sprig = {
 
   // Backgrounds
   background: "#F9FAFB", // light gray / off-white
-  dark: "#111827",       // dark mode background
+  dark: "#111827", // dark mode background
 
   // Borders
   border: "#E5E7EB",
@@ -21,10 +21,13 @@ export const sprig = {
   ink600: "#4B5563", // muted text
   ink500: "#6B7280", // subtle text
 
-   // Utility
-  white: "#FFFFFF",   // ✅ Added
-  black: "#000000", 
-  
+  // Outline / divider
+  outline: "#E5E7EB",
+
+  // Utility
+  white: "#FFFFFF", // ✅ Added
+  black: "#000000",
+
   // Shadows
   shadow: "#000000",
 };
@@ -67,4 +70,3 @@ export const mono = {
     default: "monospace",
   }),
 };
-
